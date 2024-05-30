@@ -11,12 +11,12 @@ import time, sys, os
 torch.manual_seed(1000)
 np.random.seed(1000)
 
-def model_name(name, lr, epoch):
-    path=f'model_{name}_lr_{lr}_epoch_{epoch}'
+def model_name(name, batch_size, lr, epoch):
+    path=f'model_{name}_batch_size{batch_size}_lr_{lr}_epoch_{epoch}'
 
     return path
 
-def train_model(model, train_loader, val_loader, lr, epochs):
+def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     optimizer = torch.optim.Adam(model.parameters(), lr, weight_decay=0.001)
@@ -44,10 +44,12 @@ def train_model(model, train_loader, val_loader, lr, epochs):
             inputs, labels = data
             inputs, labels = inputs.to(device), labels.to(device)
 
+            labels = torch.max(labels, 1)[1]
+
             optimizer.zero_grad()
 
             outputs = model(inputs)
-            loss = criterion(outputs, torch.max(labels, 1)[1])
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
@@ -77,8 +79,10 @@ def train_model(model, train_loader, val_loader, lr, epochs):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
                 
+                labels = torch.max(labels, 1)[1]
+                
                 outputs = model(inputs)
-                loss = criterion(outputs, torch.max(labels, 1)[1])
+                loss = criterion(outputs, labels)
 
                 running_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
@@ -91,11 +95,14 @@ def train_model(model, train_loader, val_loader, lr, epochs):
             avg_val_loss = running_loss/len(val_loader)
             total_val_loss.append(avg_val_loss)
 
-            val_acc = correct/total
+        val_acc = correct/total
         
         t = time.time() - start_time
         print(f"Epoch {epoch+1}: Train_loss={avg_train_loss:.4f}, Train_Error={avg_train_error:.4f}, Train_Acc={train_acc:.4%} || Val_Loss = {avg_val_loss:.4f}, Val_Error={avg_val_error:.4f}, Val_Acc={val_acc:.4%}")
 
+        if epoch+1 == 100:
+            model_path = model_name(model.name, batch_size, lr, epoch+1)
+            torch.save(model.state_dict(), model_path)
     
     plt.plot(range(1, epochs+1), total_train_loss, label='Train Loss')
     plt.plot(range(1, epochs+1), total_val_loss, label='Validation Loss')

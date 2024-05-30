@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
+
+import torch
 from model import LSTM_model, createLinearRegression
 from data_loader import clean_all_data, create_time_series_dataset, get_data_loader, split_data
 from sklearn.preprocessing import StandardScaler
@@ -9,6 +11,7 @@ from sklearn.decomposition import PCA
 
 from kneed import KneeLocator
 
+from test import test_model
 from train import train_model
 
 def train_pipeline(data, train_test_split, regression_models='linear_regression.pkl'):
@@ -72,7 +75,7 @@ if __name__ == '__main__':
    # PT	   : POHON TUMBANG
    # KB	   : KEBAKARAN
 
-   clean_all_data()
+   # clean_all_data()
 
    # Read data
    data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
@@ -132,15 +135,22 @@ if __name__ == '__main__':
    train_loader, val_loader, test_loader = get_data_loader(time_series_data, batch_size, val_size, test_size)
 
    # 16 kurang yakin dari mana, mungkin features, tapi harusnya 18?
-   model = LSTM_model(input_size=16, hidden_size=64, num_layers=2, num_classes=2)
+   model = LSTM_model(input_size=16, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
 
 
-   train_ = 1
+   train_ = 0
    
    if train_:
-      train_model(model, train_loader, val_loader, lr=0.001, epochs=100)
+      train_model(model, batch_size, train_loader, val_loader, lr=0.001, epochs=100)
+
    
+   device = torch.device('cuda' if torch.cuda.is_available else 'cpu')
+   model_name = "model_LSTM_model_batch_size32_lr_0.001_epoch_100"
+   model.load_state_dict(torch.load(model_name, map_location=device))
+
+   test_model(model, test_loader)
    print("DONE")
+
    
 
    # https://discuss.pytorch.org/t/runtimeerror-multi-target-not-supported-newbie/10216
@@ -150,4 +160,3 @@ if __name__ == '__main__':
    # df = pd.read_csv('./data_bencana_semarang_clean/data_all_years.csv',index_col='Tanggal')
    
    # train_pipeline(data=df, train_test_split='2021-05-01', regression_models='linear_regression.pkl')
-
