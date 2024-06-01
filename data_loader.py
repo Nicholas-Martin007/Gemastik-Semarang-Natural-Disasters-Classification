@@ -339,9 +339,12 @@ def clean_all_data():
 
     data = pd.read_csv('./data_bencana_semarang_clean/data_all_years.csv')
     data['Bencana Alam'] = data[['B', 'RB', 'TL', 'KB', 'PT']].astype(int).astype(str).sum(axis=1)
-    data['Bencana Alam'] = data['Bencana Alam'].apply(lambda x: int(x, 2))
+    # data['Bencana Alam'] = data['Bencana Alam'].apply(lambda x: int(x, 2))
     data.to_csv('./data_bencana_semarang_clean/data_all_years.csv', index=False)
     data.drop(columns=['B', 'RB', 'TL', 'PT', 'KB'], inplace=True)
+
+    data_all = None
+    i = 0
 
     for kecamatan in data['KECAMATAN'].unique():
         data_kecamatan = data[data['KECAMATAN'] == kecamatan]
@@ -355,6 +358,13 @@ def clean_all_data():
             
         data_kecamatan.to_csv(f'./data_kecamatan_clean/data_{kecamatan}.csv', index=False)
 
+        if i == 0:
+            data_all = data_kecamatan
+            i += 1
+        else:
+            data_all = pd.concat([data_all, data_kecamatan], axis=0)
+
+        
 
         # ===== For spliting all output (NOT USED)
         # B, RB, TL, KB, PT = data_kecamatan.pop('B'), data_kecamatan.pop('RB'), data_kecamatan.pop('TL'), data_kecamatan.pop('KB'), data_kecamatan.pop('PT')
@@ -366,12 +376,14 @@ def clean_all_data():
         #     data_kecamatan.pop(bencana)
         # =====
 
+    data_all.to_csv('data_combine.csv', index= False)
+
 def create_time_series_dataset(data, past_steps):
     dataset = []
 
     for i in range(data.shape[0] - past_steps):
-        X = data.iloc[i:i+past_steps, 0:(data.shape[1]-2)].values # feature
-        y = data.iloc[i+past_steps, (data.shape[1]-1):].values # label
+        X = data.iloc[i:i+past_steps, 0:(data.shape[1]-1)].values # feature
+        y = data.iloc[i+past_steps, data.shape[1]-1:].values # label
 
         dataset.append((torch.from_numpy(X), torch.from_numpy(y)))
     

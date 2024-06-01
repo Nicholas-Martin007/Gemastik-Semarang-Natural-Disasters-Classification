@@ -78,8 +78,8 @@ if __name__ == '__main__':
    # clean_all_data()
 
    # Read data
-   data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
-   data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
+   # data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
+   data = pd.read_csv('data_combine.csv', index_col=0)
 
    # # ====================================
    # # PCA (Only inputs(!Tanggal, !Bencana Alam))
@@ -135,9 +135,8 @@ if __name__ == '__main__':
    batch_size = 32
    train_loader, val_loader, test_loader = get_data_loader(time_series_data, batch_size, val_size, test_size)
 
-   # 16 kurang yakin dari mana, mungkin features, tapi harusnya 18?
-   model = LSTM_model(input_size=16, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
-
+   # model = LSTM_model(input_size=18, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
+   model = LSTM_model(input_size=18, hidden_size=64, num_layers=2, num_classes=1)
 
    train_ = 1
    
