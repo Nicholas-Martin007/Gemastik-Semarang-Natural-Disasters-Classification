@@ -9,7 +9,7 @@ from data_loader import clean_all_data, create_time_series_dataset, get_data_loa
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-from kneed import KneeLocator
+# from kneed import KneeLocator
 
 from test import test_model
 from train import train_model
@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
    # Read data
    data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
+   data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
 
    # # ====================================
    # # PCA (Only inputs(!Tanggal, !Bencana Alam))
@@ -126,7 +127,7 @@ if __name__ == '__main__':
       data[features] = StandardScaler().fit_transform(data[[features]])
    
    # Concat to be time series input and output
-   data = data[list(data)[1:data.shape[1]]].astype(float)
+   data = data[list(data)[0:data.shape[1]]].astype(float)
    time_series_data = create_time_series_dataset(data, past_steps=14)
 
    val_size = 0.4
@@ -138,7 +139,7 @@ if __name__ == '__main__':
    model = LSTM_model(input_size=16, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
 
 
-   train_ = 0
+   train_ = 1
    
    if train_:
       train_model(model, batch_size, train_loader, val_loader, lr=0.001, epochs=100)
