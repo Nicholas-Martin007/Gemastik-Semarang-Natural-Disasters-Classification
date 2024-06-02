@@ -16,6 +16,9 @@ def test_model(model, test_loader):
 
     criterion = torch.nn.CrossEntropyLoss()
 
+    total_predict = []
+    total_label = []
+
     with torch.no_grad():
         model.eval()
 
@@ -29,8 +32,6 @@ def test_model(model, test_loader):
             inputs, labels = inputs.to(device), labels.to(device)
 
             
-            labels = torch.max(labels, 1)[1]
-            
             outputs = model(inputs)
             loss = criterion(outputs, labels)
 
@@ -42,6 +43,9 @@ def test_model(model, test_loader):
             correct += (predicted == labels).long().sum().item()
             total += labels.size(0)
 
+            total_predict.append(predicted)
+            total_label.append(labels)
+
 
         avg_test_error = running_error/len(test_loader.dataset)
         avg_test_loss = running_loss/len(test_loader)
@@ -50,3 +54,5 @@ def test_model(model, test_loader):
 
         t = time.time() - start_time
         print(f"Test_Loss={avg_test_loss:.4f}, Test_Error={avg_test_error:.4f}, Test_Acc={test_acc:.4%}")
+
+        print(total_predict)

@@ -390,38 +390,47 @@ def create_time_series_dataset(data, past_steps):
         y = data.iloc[i+past_steps, data.shape[1]-1:].values # label
 
         dataset.append((torch.from_numpy(X), torch.from_numpy(y)))
-    
-    # print(dataset[0][0].shape)
-    # print(dataset[0][1].shape)
+     
+    zero = 0
+    one = 0
+    for i in range(len(dataset)):
+        if dataset[i][1].item() == 0: zero += 1
+        else: one += 1
+
+    total_zeros = zero - (one * 2)
+
+    if total_zeros > 0:
+        zero_indices = [i for i, (_, label) in enumerate(dataset) if label.item() == 0]
+        
+        remove_indices = zero_indices[:total_zeros]
+        np.random.shuffle(zero_indices)
+
+        dataset = [data for i, data in enumerate(dataset) if i not in remove_indices]
 
     return dataset
-    # print(f'X length: {len(X[0:1][0])} : {X[0:1]}')
-    # print(f'y length: {len(y[0:1])} : {y[0:1]}')
-    
+
     
 def split_data(data, val_size, test_size):
-
-
-    
     val_split = int(val_size * len(data))
     test_split = int(test_size * len(data))
 
     train_data, val_temp = data[val_split:], data[:val_split]
     val_data, test_data = val_temp[test_split:], val_temp[:test_split]
 
+
     return train_data, val_data, test_data
 
 def get_data_loader(data, batch_size, val_size, test_size):
-
     train_data, val_data, test_data = split_data(data, val_size, test_size)
 
-    train_loader = DataLoader(train_data, batch_size=batch_size)
-    val_loader = DataLoader(val_data, batch_size=batch_size)
-    test_loader = DataLoader(test_data, batch_size=batch_size)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
     pickle.dump(train_loader, open('train_loader.pkl', 'wb'))
     pickle.dump(val_loader, open('val_loader.pkl', 'wb'))
     pickle.dump(test_loader, open('test_loader.pkl', 'wb'))
+
 
     return train_loader, val_loader, test_loader
 

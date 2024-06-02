@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
    # Read data
    data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
+   # data = pd.read_csv(f'./data_combine.csv', index_col=0)
 
    # # ====================================
    # # PCA (Only inputs(!Tanggal, !Bencana Alam))
@@ -131,7 +132,7 @@ if __name__ == '__main__':
 
    val_size = 0.4
    test_size = 0.2
-   batch_size = 32
+   batch_size = 16
    train_loader, val_loader, test_loader = get_data_loader(time_series_data, batch_size, val_size, test_size)
 
    # model = LSTM_model(input_size=18, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
@@ -140,11 +141,11 @@ if __name__ == '__main__':
    train_ = 1
    
    if train_:
-      train_model(model, batch_size, train_loader, val_loader, lr=0.001, epochs=100)
+      train_model(model, batch_size, train_loader, val_loader, lr=0.01, epochs=500)
 
    
    device = torch.device('cuda' if torch.cuda.is_available else 'cpu')
-   model_name = "model_LSTM_model_batch_size32_lr_0.001_epoch_100"
+   model_name = "model_LSTM_model_batch_size16_lr_0.01_epoch_500"
    model.load_state_dict(torch.load(model_name, map_location=device))
 
    test_model(model, test_loader)

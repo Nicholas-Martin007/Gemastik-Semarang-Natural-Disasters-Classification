@@ -56,18 +56,22 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
             optimizer.step()
 
             running_loss += loss.item()
-            _, predicted = torch.max(outputs.data, 1)
+            # _, predicted = torch.max(outputs.data, 1)
 
-            running_error += (predicted != labels).long().sum().item()
-            correct += (predicted == labels).long().sum().item()
+            
+            correct = (outputs > 0.0).squeeze().long() != labels
+            running_error += int(correct.sum())
+
+            # running_error += (predicted != labels).long().sum().item()
+            # correct += (predicted == labels).long().sum().item()
+
             total += labels.size(0)
-
         
         avg_train_error = running_loss/len(train_loader.dataset)
         avg_train_loss = running_loss/len(train_loader)
         total_train_loss.append(avg_train_loss)
 
-        train_acc = correct/total
+        train_acc = correct/ total
 
         model.eval()
 
@@ -81,28 +85,30 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
                 
-                # labels = torch.max(labels, 1)[1]
                 
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
 
                 running_loss += loss.item()
-                _, predicted = torch.max(outputs.data, 1)
+                # _, predicted = torch.max(outputs.data, 1)
 
-                running_error += (predicted != labels).long().sum().item()
-                correct += (predicted == labels).long().sum().item()
+                correct = (outputs > 0.0).squeeze().long() != labels
+                running_error += int(correct.sum())
+
+                # running_error += (predicted != labels).long().sum().item()
+                # correct += (predicted == labels).long().sum().item()
                 total += labels.size(0)
 
             avg_val_error = running_error/len(val_loader.dataset)
             avg_val_loss = running_loss/len(val_loader)
             total_val_loss.append(avg_val_loss)
 
-        val_acc = correct/total
+        val_acc = correct/ total
         
         t = time.time() - start_time
         print(f"Epoch {epoch+1}: Train_loss={avg_train_loss:.4f}, Train_Error={avg_train_error:.4f}, Train_Acc={train_acc:.4%} || Val_Loss = {avg_val_loss:.4f}, Val_Error={avg_val_error:.4f}, Val_Acc={val_acc:.4%}")
 
-        if epoch+1 == 100:
+        if epoch+1 == 500:
             model_path = model_name(model.name, batch_size, lr, epoch+1)
             torch.save(model.state_dict(), model_path)
     
