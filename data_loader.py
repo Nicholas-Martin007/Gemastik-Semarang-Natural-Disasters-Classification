@@ -338,13 +338,17 @@ def clean_all_data():
     data_all_years.to_csv('./data_bencana_semarang_clean/data_all_years.csv', index=False)
 
     data = pd.read_csv('./data_bencana_semarang_clean/data_all_years.csv')
-    data['Bencana Alam'] = data[['B', 'RB', 'TL', 'KB', 'PT']].astype(int).astype(str).sum(axis=1)
+
+    data['Bencana Alam'] = data[['B', 'RB', 'TL', 'KB', 'PT']].sum(axis=1)
+    data['Bencana Alam'] = data['Bencana Alam'].apply(lambda x: 1.0 if int(x) > 0 else 0.0)
+
+    # data = data.groupby(['Tanggal', 'Tn', 'Tx', 'Tavg', 'RH_avg', 'RR', 'ss', 'ff_x', 'ddd_x','ff_avg', 'ddd_car' ], as_index= False).sum()
     # data['Bencana Alam'] = data['Bencana Alam'].apply(lambda x: int(x, 2))
-    data.to_csv('./data_bencana_semarang_clean/data_all_years.csv', index=False)
+    # data.to_csv('./data_bencana_semarang_clean/data_all_years.csv', index=False)
     data.drop(columns=['B', 'RB', 'TL', 'PT', 'KB'], inplace=True)
 
-    data_all = None
-    i = 0
+    # data_all = None
+    # i = 0
 
     for kecamatan in data['KECAMATAN'].unique():
         data_kecamatan = data[data['KECAMATAN'] == kecamatan]
@@ -358,11 +362,11 @@ def clean_all_data():
             
         data_kecamatan.to_csv(f'./data_kecamatan_clean/data_{kecamatan}.csv', index=False)
 
-        if i == 0:
-            data_all = data_kecamatan
-            i += 1
-        else:
-            data_all = pd.concat([data_all, data_kecamatan], axis=0)
+    #     if i == 0:
+    #         data_all = data_kecamatan
+    #         i += 1
+    #     else:
+    #         data_all = pd.concat([data_all, data_kecamatan], axis=0)
 
         
 
@@ -376,7 +380,7 @@ def clean_all_data():
         #     data_kecamatan.pop(bencana)
         # =====
 
-    data_all.to_csv('data_combine.csv', index= False)
+    # data_all.to_csv('data_combine.csv', index= False)
 
 def create_time_series_dataset(data, past_steps):
     dataset = []
@@ -397,6 +401,8 @@ def create_time_series_dataset(data, past_steps):
     
 def split_data(data, val_size, test_size):
 
+
+    
     val_split = int(val_size * len(data))
     test_split = int(test_size * len(data))
 

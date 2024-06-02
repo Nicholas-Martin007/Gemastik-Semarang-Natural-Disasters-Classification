@@ -21,7 +21,9 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
 
     optimizer = torch.optim.Adam(model.parameters(), lr, weight_decay=0.001)
 
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
+    # criterion = nn.MSELoss()
+    criterion = nn.BCEWithLogitsLoss()
 
     model = model.to(device)
 
@@ -44,7 +46,7 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
             inputs, labels = data
             inputs, labels = inputs.to(device), labels.to(device)
 
-            labels = torch.max(labels, 1)[1]
+            # labels = torch.max(labels, 1)[1]
 
             optimizer.zero_grad()
 
@@ -79,7 +81,7 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
                 
-                labels = torch.max(labels, 1)[1]
+                # labels = torch.max(labels, 1)[1]
                 
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)

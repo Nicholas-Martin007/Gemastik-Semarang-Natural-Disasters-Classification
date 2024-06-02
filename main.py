@@ -78,8 +78,7 @@ if __name__ == '__main__':
    # clean_all_data()
 
    # Read data
-   # data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
-   data = pd.read_csv('data_combine.csv', index_col=0)
+   data = pd.read_csv(f'./data_kecamatan_clean/data_Semarang Barat.csv', index_col=0)
 
    # # ====================================
    # # PCA (Only inputs(!Tanggal, !Bencana Alam))
