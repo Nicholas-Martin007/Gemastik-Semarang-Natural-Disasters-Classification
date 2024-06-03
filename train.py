@@ -59,8 +59,11 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
             # _, predicted = torch.max(outputs.data, 1)
 
             
-            correct = (outputs > 0.0).squeeze().long() != labels
-            running_error += int(correct.sum())
+            error = ((outputs > 0.0) != labels).sum()
+            running_error += int(error.sum())
+
+            correct_temp = ((outputs > 0.0) == labels).sum()
+            correct += int(correct_temp.sum())
 
             # running_error += (predicted != labels).long().sum().item()
             # correct += (predicted == labels).long().sum().item()
@@ -92,8 +95,12 @@ def train_model(model, batch_size, train_loader, val_loader, lr, epochs):
                 running_loss += loss.item()
                 # _, predicted = torch.max(outputs.data, 1)
 
-                correct = (outputs > 0.0).squeeze().long() != labels
-                running_error += int(correct.sum())
+                error = ((outputs > 0.0) != labels).sum()
+                running_error += int(error.sum())
+
+                correct_temp = ((outputs > 0.0) == labels).sum()
+                correct += int(correct_temp.sum())
+
 
                 # running_error += (predicted != labels).long().sum().item()
                 # correct += (predicted == labels).long().sum().item()

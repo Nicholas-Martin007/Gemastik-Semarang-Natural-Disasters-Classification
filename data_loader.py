@@ -391,21 +391,21 @@ def create_time_series_dataset(data, past_steps):
 
         dataset.append((torch.from_numpy(X), torch.from_numpy(y)))
      
-    zero = 0
-    one = 0
-    for i in range(len(dataset)):
-        if dataset[i][1].item() == 0: zero += 1
-        else: one += 1
+    # zero = 0
+    # one = 0
+    # for i in range(len(dataset)):
+    #     if dataset[i][1].item() == 0: zero += 1
+    #     else: one += 1
 
-    total_zeros = zero - (one * 2)
+    # total_zeros = zero - (one * 2)
 
-    if total_zeros > 0:
-        zero_indices = [i for i, (_, label) in enumerate(dataset) if label.item() == 0]
+    # if total_zeros > 0:
+    #     zero_indices = [i for i, (_, label) in enumerate(dataset) if label.item() == 0]
         
-        remove_indices = zero_indices[:total_zeros]
-        np.random.shuffle(zero_indices)
+    #     remove_indices = zero_indices[:total_zeros]
+    #     np.random.shuffle(zero_indices)
 
-        dataset = [data for i, data in enumerate(dataset) if i not in remove_indices]
+    #     dataset = [data for i, data in enumerate(dataset) if i not in remove_indices]
 
     return dataset
 

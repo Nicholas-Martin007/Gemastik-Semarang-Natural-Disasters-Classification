@@ -130,27 +130,29 @@ if __name__ == '__main__':
    data = data[list(data)[0:data.shape[1]]].astype(float)
    time_series_data = create_time_series_dataset(data, past_steps=14)
 
-   val_size = 0.4
-   test_size = 0.2
-   batch_size = 16
+   val_size = 0.2
+   test_size = 0.01
+   batch_size = 32
    train_loader, val_loader, test_loader = get_data_loader(time_series_data, batch_size, val_size, test_size)
 
    # model = LSTM_model(input_size=18, hidden_size=64, num_layers=2, num_classes=len(data['Bencana Alam'].unique()))
-   model = LSTM_model(input_size=18, hidden_size=64, num_layers=2, num_classes=1)
+   model = LSTM_model(input_size=18, hidden_size=2, num_layers=1, num_classes=1)
 
-   train_ = 1
+   train_ = 0
    
    if train_:
-      train_model(model, batch_size, train_loader, val_loader, lr=0.01, epochs=500)
+      train_model(model, batch_size, train_loader, val_loader, lr=0.0001, epochs=500)
 
    
    device = torch.device('cuda' if torch.cuda.is_available else 'cpu')
-   model_name = "model_LSTM_model_batch_size16_lr_0.01_epoch_500"
+   model_name = "model_LSTM_model_batch_size32_lr_0.0001_epoch_500"
    model.load_state_dict(torch.load(model_name, map_location=device))
 
    test_model(model, test_loader)
    print("DONE")
 
+
+   # Logistic Regression, SVM, Random Forest, XGBoost, 
    
 
    # https://discuss.pytorch.org/t/runtimeerror-multi-target-not-supported-newbie/10216

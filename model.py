@@ -62,7 +62,7 @@ class LSTM_model(nn.Module):
 
         self.name = "LSTM_model"
 
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True).double()
+        self.rnn = nn.RNN(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2).double()
         self.fc = nn.Linear(hidden_size, num_classes).double()
 
     def forward(self, x):
@@ -71,7 +71,7 @@ class LSTM_model(nn.Module):
         hidden_state = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device).double()
         cell_state = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device).double()
 
-        out, _ = self.lstm(x, (hidden_state, cell_state)) # 16 kurang tau dari mana
+        out, _ = self.rnn(x, (hidden_state)) # 16 kurang tau dari mana
 
         out = out[:, -1, :]
 
